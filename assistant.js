@@ -1,5 +1,5 @@
 	(() => {
-		const geminiApiKey = "AIzaSyAGMbq17dLbNeiOorSE7iB7ZwQFOYXOzLI";
+		const geminiApiKey = "AQ.Ab8RN6IF9QZFNw2FXek5CxftLz87J9QDlzamhoE72QPVBeN5VA";
 		const chatModel = "gemini-2.5-flash";
 		const ttsModel = "gemini-3.1-flash-tts-preview";
 		const ttsVoice = "Aoede";
