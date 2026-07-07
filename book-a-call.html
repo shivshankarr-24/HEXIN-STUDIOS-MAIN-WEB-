@@ -7265,7 +7265,7 @@
                         const eventType = payload.type || payload.action || payload.method || '';
                         if (typeof eventType === 'string' && eventType.includes('bookingSuccessful')) {
                             // Clean routing specifically for Framer environments
-                            window.location.protocol === 'file:' ? 'thank-you.html' : '/thank-you';
+                            window.location.href = 'file:' ? 'thank-you.html' : '/thank-you';
                         }
                     }
                 } catch (err) { } // Silently ignore unrelated iframe messages
@@ -7281,7 +7281,7 @@
                         callback: (e) => {
                             const eventType = e.detail && e.detail.type ? e.detail.type : '';
                             if (eventType.includes('bookingSuccessful')) {
-                               window.location.protocol === 'file:' ? 'thank-you.html' : '/thank-you';
+                               window.location.href = 'file:' ? 'thank-you.html' : '/thank-you';
                             }
                         }
                     });
