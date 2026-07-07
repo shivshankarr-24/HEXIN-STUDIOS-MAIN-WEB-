@@ -7253,54 +7253,53 @@
 	</div>
 	<!-- Start of bodyEnd -->
 
-	<!-- Snippet: dtxF5rDGJ -->
 	<script>
-  window.addEventListener('DOMContentLoaded', function() {
-    
-    // Layer 1: Direct iframe postMessage Interception (Bulletproof Fallback)
-    // This catches raw window messages sent by the Cal.com iframe directly to the browser,
-    // ensuring the redirect occurs even if the official global object's event payload changes.
-    window.addEventListener('message', function(e) {
-      try {
-        const payload = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-        if (payload && (
-            payload.action === 'bookingSuccessful' || 
-            payload.action === 'bookingSuccessfulV2' || 
-            payload.type === 'cal:bookingSuccessful' || 
-            payload.type === 'bookingSuccessful'
-        )) {
-          window.location.href = "./thank-you.html";
+    (function () {
+        function initRedirect() {
+            // Layer 1: Direct iframe postMessage interception (Bulletproof Fallback)
+            window.addEventListener('message', function (e) {
+                try {
+                    const payload = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+                    if (payload) {
+                        // Check type, action, and method for 'bookingSuccessful'
+                        const eventType = payload.type || payload.action || payload.method || '';
+                        if (typeof eventType === 'string' && eventType.includes('bookingSuccessful')) {
+                            // Clean routing specifically for Framer environments
+                            window.location.href = '/thank-you';
+                        }
+                    }
+                } catch (err) { } // Silently ignore unrelated iframe messages
+            });
+
+            // Layer 2: Official Cal.com API listener (Wildcard Approach)
+            const checkCal = setInterval(() => {
+                if (typeof window.Cal === 'function') {
+                    clearInterval(checkCal);
+
+                    window.Cal("on", {
+                        action: "*",
+                        callback: (e) => {
+                            const eventType = e.detail && e.detail.type ? e.detail.type : '';
+                            if (eventType.includes('bookingSuccessful')) {
+                                window.location.href = '/thank-you';
+                            }
+                        }
+                    });
+                }
+            }, 500);
+
+            // Failsafe: Clear interval after 10 seconds to optimize performance
+            setTimeout(() => clearInterval(checkCal), 10000);
         }
-      } catch (err) {} // Silently ignore unrelated iframe postMessages
-    });
 
-    // Layer 2: Official Cal.com API Listener with Naming Wildcard
-    // Polling setup to hook safely into the wrapper namespace once initialized.
-    const checkCal = setInterval(() => {
-      if (typeof window.Cal === 'function') {
-        clearInterval(checkCal);
-        
-        // Using the "*" wildcard future-proofs the listener against any 
-        // string changes (e.g., bookingSuccessfulV3) by parsing the sub-type string.
-        window.Cal("on", {
-          action: "*",
-          callback: (e) => {
-            const eventType = e.detail && e.detail.type ? e.detail.type : '';
-            if (eventType.includes('bookingSuccessful')) {
-              window.location.href = "/thank-you"; 
-            }
-          }
-        });
-      }
-    }, 500);
-
-    // Failsafe: Clear the initialization check interval after 10 seconds 
-    // to prevent memory leaks if the calendar asset fails to resolve.
-    setTimeout(() => clearInterval(checkCal), 10000);
-  });
+        // Failsafe Initialization: Ensures the script runs even if injected late by Framer
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', initRedirect);
+        } else {
+            initRedirect();
+        }
+    })();
 </script>
-<!-- SnippetEnd: dtxF5rDGJ -->
-
 
 
 	<div id="hexin-ai-assistant-root">
