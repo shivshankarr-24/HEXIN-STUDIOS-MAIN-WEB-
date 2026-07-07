@@ -7255,58 +7255,51 @@
 
 	<!-- Snippet: dtxF5rDGJ -->
 	<script>
-		(function () {
-			function initRedirect() {
-				// Layer 1: Direct iframe postMessage interception (Bulletproof Fallback)
-				// This listens to the raw browser events from the calendar iframe directly, 
-				// bypassing the Cal.com JS wrapper entirely if it fails or changes.
-				window.addEventListener('message', function (e) {
-					try {
-						const payload = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-						if (payload) {
-							// Check both type, action, and method for 'bookingSuccessful'
-							const eventType = payload.type || payload.action || payload.method || '';
-							if (typeof eventType === 'string' && eventType.includes('bookingSuccessful')) {
-								// Support local testing (file://) as well as production web servers
-								const redirectUrl = window.location.protocol === 'file:' ? 'thank-you.html' : '/thank-you';
-								window.location.href = redirectUrl;
-							}
-						}
-					} catch (err) { } // Silently ignore unrelated iframe messages
-				});
+  window.addEventListener('DOMContentLoaded', function() {
+    
+    // Layer 1: Direct iframe postMessage Interception (Bulletproof Fallback)
+    // This catches raw window messages sent by the Cal.com iframe directly to the browser,
+    // ensuring the redirect occurs even if the official global object's event payload changes.
+    window.addEventListener('message', function(e) {
+      try {
+        const payload = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+        if (payload && (
+            payload.action === 'bookingSuccessful' || 
+            payload.action === 'bookingSuccessfulV2' || 
+            payload.type === 'cal:bookingSuccessful' || 
+            payload.type === 'bookingSuccessful'
+        )) {
+          window.location.href = "/thank-you";
+        }
+      } catch (err) {} // Silently ignore unrelated iframe postMessages
+    });
 
-				// Layer 2: Official Cal.com API listener (Wildcard Approach)
-				const checkCal = setInterval(() => {
-					if (typeof window.Cal === 'function') {
-						clearInterval(checkCal);
+    // Layer 2: Official Cal.com API Listener with Naming Wildcard
+    // Polling setup to hook safely into the wrapper namespace once initialized.
+    const checkCal = setInterval(() => {
+      if (typeof window.Cal === 'function') {
+        clearInterval(checkCal);
+        
+        // Using the "*" wildcard future-proofs the listener against any 
+        // string changes (e.g., bookingSuccessfulV3) by parsing the sub-type string.
+        window.Cal("on", {
+          action: "*",
+          callback: (e) => {
+            const eventType = e.detail && e.detail.type ? e.detail.type : '';
+            if (eventType.includes('bookingSuccessful')) {
+              window.location.href = "/thank-you"; 
+            }
+          }
+        });
+      }
+    }, 500);
 
-						// Using the "*" wildcard future-proofs the listener against any 
-						// renaming (e.g., bookingSuccessfulV3) by checking the event string.
-						window.Cal("on", {
-							action: "*",
-							callback: (e) => {
-								const eventType = e.detail && e.detail.type ? e.detail.type : '';
-								if (eventType.includes('bookingSuccessful')) {
-									const redirectUrl = window.location.protocol === 'file:' ? 'thank-you.html' : '/thank-you';
-									window.location.href = redirectUrl;
-								}
-							}
-						});
-					}
-				}, 500);
-
-				// Failsafe: Clear the interval after 10 seconds to prevent 
-				// memory leaks if the calendar script gets blocked by a browser.
-				setTimeout(() => clearInterval(checkCal), 10000);
-			}
-
-			if (document.readyState === 'loading') {
-				window.addEventListener('DOMContentLoaded', initRedirect);
-			} else {
-				initRedirect();
-			}
-		})();
-	</script><!-- SnippetEnd: dtxF5rDGJ --><!-- End of bodyEnd -->
+    // Failsafe: Clear the initialization check interval after 10 seconds 
+    // to prevent memory leaks if the calendar asset fails to resolve.
+    setTimeout(() => clearInterval(checkCal), 10000);
+  });
+</script>
+<!-- SnippetEnd: dtxF5rDGJ -->
 
 
 
