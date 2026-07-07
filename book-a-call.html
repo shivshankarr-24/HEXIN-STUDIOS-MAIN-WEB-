@@ -7281,7 +7281,7 @@
                         callback: (e) => {
                             const eventType = e.detail && e.detail.type ? e.detail.type : '';
                             if (eventType.includes('bookingSuccessful')) {
-                                window.location.href = '/thank-you';
+                               window.location.protocol === 'file:' ? 'thank-you.html' : '/thank-you';
                             }
                         }
                     });
