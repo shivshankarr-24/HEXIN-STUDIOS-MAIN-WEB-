@@ -7289,7 +7289,7 @@
                             const eventType = payload.type || payload.action || payload.method || '';
                             if (typeof eventType === 'string' && eventType.includes('bookingSuccessful')) {
                                 // Clean routing specifically for Framer environments
-                                window.location.href = 'https://shivshankarr-24.github.io/HEXIN-STUDIOS-MAIN-WEB-/thank-you.html';
+                                window.location.href = '/thank-you.html';
                             }
                         }
                     } catch (err) { } // Silently ignore unrelated iframe messages
@@ -7305,7 +7305,7 @@
                             callback: (e) => {
                                 const eventType = e.detail && e.detail.type ? e.detail.type : '';
                                 if (eventType.includes('bookingSuccessful')) {
-                                    window.location.href = 'https://shivshankarr-24.github.io/HEXIN-STUDIOS-MAIN-WEB-/thank-you.html';
+                                    window.location.href = '/thank-you.html';
                                 }
                             }
                         });
